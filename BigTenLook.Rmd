@@ -38,7 +38,6 @@ P522$Height <- gsub("\n ","", P522$Height)
 P522$Weight <- gsub("\n","", P522$Weight)
 ```
 ```{r}
-register_google(key = "AIzaSyCMjaZM9aANa6DjbY8Mtt62iZqIS0ywJoI")
 
 P522$Place <- paste(P522$HS, P522$City, P522$State, sep = ", ")
 Locations <- as.data.frame(unique(P522$Place)) %>%
