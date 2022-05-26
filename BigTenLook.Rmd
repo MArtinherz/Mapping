@@ -1,0 +1,94 @@
+
+
+```{r}
+
+library(tidyverse)
+library(tmap)
+library(sf)
+library(leaflet)
+```
+
+
+```{r}
+
+P522 <- read_csv("2022PowerFive.csv")
+
+P522 <- P522 %>%
+  rename(
+    Name = `Unnamed: 0`,
+    Position = `0`,
+    HS = `1`,
+    City = `2`,
+    State = `3`,
+    Height = `4`,
+    Inches = `5`,
+    Weight = `6`,
+    CompRating = `7`,
+    Offerer = `8`,
+    Year = `9`,
+    NatRank = `10`,
+    PosRank = `11`,
+    StRank = `12`,
+    Stars = `13`,
+    CommittedTo = `14`
+    
+  )
+
+P522$Height <- gsub("\n ","", P522$Height)
+P522$Weight <- gsub("\n","", P522$Weight)
+```
+```{r}
+register_google(key = "AIzaSyCMjaZM9aANa6DjbY8Mtt62iZqIS0ywJoI")
+
+P522$Place <- paste(P522$HS, P522$City, P522$State, sep = ", ")
+Locations <- as.data.frame(unique(P522$Place)) %>%
+  rename(Spot = `unique(P522$Place)`) %>%
+  mutate_geocode(Spot)
+
+  
+P522$Stars[P522$Stars == 0] <- 1
+P522_geo <- P522 %>%
+  left_join(Locations, by = c('Place' = 'Spot')) %>%
+
+  write_csv("P5Updated22.csv")
+
+
+states <- read_sf("cb_2021_us_state_500k/cb_2021_us_state_500k.shp") %>%
+  st_zm() %>%
+  mutate(water_km2 = (AWATER / (1000*1000)) %>% round(2))
+
+amap <- leaflet(states) %>%
+  addTiles() %>%
+  addPolygons() %>%
+  addMarkers(data = B1G22,
+             lat = ~lat,
+             lng = ~lon,
+             label = ~Name,
+             popup = ~paste0("Name: ", Name, "<br>"
+                             "High School: ", Place, "<br>",
+                             "Stars: ", Stars, "<br>",
+                             "Position: ", Position, "<br>"))
+
+```
+
+#TMAP
+```{r}
+tm_shape(states, projection = 2163) +
+  tm_polygons() +
+  tm_layout(frame = FALSE)
+
+
+
+```
+
+
+
+```{r}
+p5Null <- P522 %>%
+  filter(Offerer == "Nebraska" & Stars == 2)
+
+nrow(p5Null)
+is_null(p5Null)
+
+```
+
