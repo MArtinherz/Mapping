@@ -4,10 +4,10 @@ library(leaflet)
 library(sf)
 library(tidyverse)
 
-B1G22 <- read_csv("P5Updated22.csv") %>%
+PowerFive <- readRDS("RecruitingData/PowerFiveSince11.rds") %>%
   filter(!(is.na(lon)))
   
-B1G22 <- as.data.frame(B1G22)
+PowerFive <- as.data.frame(PowerFive)
 
 states <- read_sf("cb_2021_us_state_500k/cb_2021_us_state_500k.shp") %>%
   st_zm() %>%
@@ -33,10 +33,10 @@ ui <- fluidPage(
               value = c(1,5)),
   sliderInput(inputId = "Years",
               label = strong("Years"),
-              min = 2021,
+              min = 2011,
               max = 2022,
               step = 1,
-              value = c(2022, 2022))
+              value = c(2011, 2022))
     ))
   
   
@@ -51,9 +51,10 @@ ui <- fluidPage(
 
 server <- function(input, output, session){
   dataset <- reactive({
-    B1G22 %>%
+    PowerFive %>%
       filter(Offerer == input$School) %>%
-      filter(Stars >= input$Stars[1] & Stars <= input$Stars[2])
+      filter(Stars >= input$Stars[1] & Stars <= input$Stars[2]) %>%
+      filter(Year >= input$Years[1] & Year <= input$Years[2])
   })
   
   output$map <- renderLeaflet({
@@ -112,23 +113,33 @@ server <- function(input, output, session){
      
    }
  })
-# 
-#  observe({
-#     leafletProxy("map", data = dataset()) %>%
-#       clearMarkers() %>%
-#       clearMarkerClusters() %>%
-#       addMarkers(lat = ~lat,
-#                  lng = ~lon,
-#                  label = ~Name,
-#                  popup = ~paste0(
-#                                  "Name: ", Name, "<br>",
-#                                  "High School: ", Place, "<br>",
-#                                  "Stars: ", Stars, "<br>",
-#                                  "Position: ", Position, "<br>",
-#                                  "Year: ", Year, "<br>"),
-#                  clusterOptions = markerClusterOptions())
-# 
-#   })
+ 
+ observeEvent(input$Years, {
+   if(nrow(dataset()) > 0){
+     leafletProxy("map", data = dataset()) %>%
+       clearMarkers() %>%
+       clearMarkerClusters() %>%
+       addMarkers(lat = ~lat,
+                  lng = ~lon,
+                  label = ~Name,
+                  popup = ~paste0(
+                    "Name: ", Name, "<br>",
+                    "High School: ", Place, "<br>",
+                    "Stars: ", Stars, "<br>",
+                    "Position: ", Position, "<br>",
+                    "Year: ", Year, "<br>",
+                    "Commited to: ", CommittedTo, "<br>"),
+                  clusterOptions = markerClusterOptions())
+   }
+   else{
+     leafletProxy("map") %>%
+       clearMarkerClusters() %>%
+       clearMarkers()
+     
+   }
+ })
+ 
+
     
 }
 shinyApp(ui, server)

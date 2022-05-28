@@ -1,0 +1,14 @@
+name: OffersMap
+title: OffersMap
+username:
+account: martinherz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6374900
+bundleId: 5945768
+url: https://martinherz.shinyapps.io/OffersMap/
+when: 1653527875.56996
+lastSyncTime: 1653527875.56996
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: BigTenLook.Rmd|cb_2021_us_county_500k

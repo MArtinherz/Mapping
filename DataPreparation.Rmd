@@ -1,0 +1,85 @@
+
+
+```{r}
+library(tidyverse)
+library(ggmap)
+season11 <- read_csv("RecruitingData/2011PowerFive.csv")
+Season12 <- read_csv("RecruitingData/2012PowerFive.csv")
+Season13 <- read_csv("RecruitingData/2013PowerFive.csv")
+Season14 <- read_csv("RecruitingData/2014PowerFive.csv")
+Season15 <- read_csv("RecruitingData/2015PowerFive.csv")
+Season16 <- read_csv("RecruitingData/2016PowerFive.csv")
+Season17 <- read_csv("RecruitingData/2017PowerFive.csv")
+Season18 <- read_csv("RecruitingData/2018PowerFive.csv")
+Season19 <- read_csv("RecruitingData/2019PowerFive.csv")
+Season20 <- read_csv("RecruitingData/2020PowerFive.csv")
+Season21 <- read_csv("RecruitingData/2021PowerFive.csv")
+Season22 <- read_csv("RecruitingData/2022PowerFive.csv")
+
+```
+
+
+```{r}
+
+renamer <- function(dataset){
+  dataset %>%
+      rename(
+        Name = `Unnamed: 0`,
+        Position = `0`,
+        HS = `1`,
+        City = `2`,
+        State = `3`,
+        Height = `4`,
+        Inches = `5`,
+        Weight = `6`,
+        CompRating = `7`,
+        Offerer = `8`,
+        Year = `9`,
+        NatRank = `10`,
+        PosRank = `11`,
+        StRank = `12`,
+        Stars = `13`,
+        CommittedTo = `14`
+        
+      )}
+
+season11 <- renamer(season11)
+season12 <- renamer(Season12)
+season13 <- renamer(Season13)
+season14 <- renamer(Season14)
+season15 <- renamer(Season15)
+season16 <- renamer(Season16)
+season17 <- renamer(Season17)
+season18 <- renamer(Season18)
+season19 <- renamer(Season19)
+season20 <- renamer(Season20)
+season21 <- renamer(Season21)
+season22 <- renamer(Season22)
+
+AllSZNs <- rbind(season11, season12, season13, season14, season15, season16, season17,
+      season18, season19, season20, season21, season22)
+
+
+#Change all column names of the one big dataset preparing
+
+#Then add the geo-coordinates of every high school from the big dataset
+register_google(key = "AIzaSyCMjaZM9aANa6DjbY8Mtt62iZqIS0ywJoI")
+
+AllSZNs$Place <- paste(AllSZNs$HS, AllSZNs$City, AllSZNs$State, sep = ", ")
+Locations <- as.data.frame(unique(AllSZNs$Place)) %>%
+  rename(Spot = `unique(AllSZNs$Place)`) %>%
+  mutate_geocode(Spot)
+
+  
+AllSZNs$Stars[AllSZNs$Stars == 0] <- 1
+AllSZNs_geo <- AllSZNs %>%
+  left_join(Locations, by = c('Place' = 'Spot'))
+
+  #write_csv("P5Updated22.csv")
+
+#Convert that dataset into a .rds file, making it easier for the app to read
+saveRDS(AllSZNs_geo, file = "RecruitingData/PowerFiveSince11.rds")
+
+
+```
+
