@@ -12,5 +12,5 @@ The website is not complete and not sure when it will be but it is open with the
 # Future/Possible Updates
 
 * Positions, position filtering
-* School comparison
+* School comparison (Comparing one school to another and where they offer versus not)
 * Exploration of dataset
